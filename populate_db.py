@@ -23,13 +23,13 @@ User.objects.all().delete()
 
 print("👤 Creazione utenti demo...")
 
-# Superuser / admin
+# Superuser / admin (Kiki-Jiki)
 admin = User.objects.create_superuser(
-    username='admin_demo',
+    username='kikijiki',
     email='admin@demo.it',
     password='admin12345',
     ruolo='moderator',
-    bio='Account amministratore della piattaforma.',
+    bio='Il grande spaccaspecchi. Amministratore supremo della piattaforma 🔥',
 )
 
 # Moderatore
@@ -87,15 +87,10 @@ user4 = User.objects.create_user(
 
 print("🤝 Creazione relazioni follow...")
 
-# mario segue giulia e sara
 user1.following.add(user2, user4)
-# giulia segue mario e luca
 user2.following.add(user1, user3)
-# sara segue mario e giulia
 user4.following.add(user1, user2)
-# moderatore segue tutti
 moderatore.following.add(user1, user2, user3, user4)
-# richiesta di follow pendente a luca (account privato)
 user3.richieste_in_arrivo.add(user4)
 
 print("📝 Creazione post...")
@@ -171,12 +166,12 @@ Segnalazione.objects.create(
     motivo='spam',
     descrizione='Test segnalazione già risolta.',
     stato='risolta',
-    gestita_da=moderatore,
+    gestita_da=admin,  # <-- Aggiornato per usare l'admin
 )
 
 print("\n✅ Database popolato con successo!")
-print("\n📋 Account demo:")
-print("   admin_demo       / admin12345      → superuser + moderatore")
+print("\n📋 Account demo aggiornati:")
+print("   kikijiki         / admin12345      → superuser + moderatore (ADMIN)")
 print("   moderatore_demo  / moderatore12345 → moderatore")
 print("   mario_rossi      / user12345       → utente standard")
 print("   giulia_bianchi   / user12345       → utente standard")

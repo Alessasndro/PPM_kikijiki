@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block title %}Accedi - MirrorBreaker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="post-card p-4 text-center">
+            
+            <i class="fa-solid fa-dragon fa-3x mb-3" style="color: var(--kiki-red);"></i>
+            <h2 class="mb-4" style="color: var(--kiki-text-main); font-family: 'Georgia', serif; font-style: italic;">Bentornato!</h2>
+
+            <!-- Blocco Errori -->
+            {% if form.errors %}
+                <div class="alert alert-danger mb-4" style="background-color: var(--kiki-bg); color: var(--kiki-red); border: 1px solid var(--kiki-red); padding: 10px; border-radius: 6px;">
+                    Nome utente o password errati. Riprova.
+                </div>
+            {% endif %}
+
+            <!-- IMPORTANTE: Aggiunto id="login-form" -->
+            <form id="login-form" method="POST" action="{% url 'users:login' %}">
+                {% csrf_token %}
+                
+                <div class="mb-3 text-start">
+                    <label for="id_username" class="form-label text-muted">Nome Utente</label>
+                    <input type="text" name="username" class="form-control" id="id_username" required autofocus>
+                </div>
+
+                <div class="mb-4 text-start">
+                    <label for="id_password" class="form-label text-muted">Password</label>
+                    <input type="password" name="password" class="form-control" id="id_password" required>
+                </div>
+                
+                {% if request.GET.next %}
+                    <input type="hidden" name="next" value="{{ request.GET.next }}">
+                {% endif %}
+
+                <button type="submit" class="btn btn-kiki w-100 py-2 fs-5">Accedi</button>
+            </form>
+
+            <!-- Bottoni Accesso Rapido Demo -->
+            <div class="mt-4 pt-3 text-center border-top" style="border-color: var(--kiki-border) !important;">
+                <p class="text-muted small mb-2">Accesso Rapido (Modalità Demo):</p>
+                <div class="d-flex justify-content-center gap-2">
+                    <button type="button" class="btn btn-sm" style="background-color: var(--kiki-border); color: var(--kiki-gold);" onclick="fillLogin('kikijiki', 'admin12345')">
+                        <i class="fa-solid fa-crown"></i> Admin (Kiki-Jiki)
+                    </button>
+                    <button type="button" class="btn btn-sm" style="background-color: var(--kiki-border); color: var(--kiki-text-main);" onclick="fillLogin('mario_rossi', 'user12345')">
+                        <i class="fa-solid fa-user"></i> Utente (Mario)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Script Aggiornato -->
+            <script>
+                function fillLogin(user, pass) {
+                    document.getElementById('id_username').value = user;
+                    document.getElementById('id_password').value = pass;
+                    document.getElementById('login-form').submit(); // Ora invia il form giusto!
+                }
+            </script>
+
+            <hr class="my-4" style="border-color: var(--kiki-border);">
+
+            <p class="text-muted mb-0">
+                Non hai un account? 
+                <a href="{% url 'users:registrazione' %}" style="color: var(--kiki-gold); text-decoration: none; font-weight: bold;">Registrati</a>
+            </p>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

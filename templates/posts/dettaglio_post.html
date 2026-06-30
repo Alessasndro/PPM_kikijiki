@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Post di {{ post.autore.username }} - MirrorBreaker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-10 col-lg-8">
+        
+        <div class="post-card">
+            <div class="post-header d-flex justify-content-between align-items-center">
+                <a href="{% url 'users:profilo' post.autore.username %}" class="d-flex align-items-center text-decoration-none">
+                    <i class="fa-solid fa-circle-user fs-3 me-2" style="color: var(--kiki-gold);"></i>
+                    <span class="fw-bold">{{ post.autore.username }}</span>
+                </a>
+                
+                <div class="d-flex align-items-center gap-3">
+                    <small class="text-muted">{{ post.data_creazione|date:"d M Y H:i" }}</small>
+                    <a href="{% url 'posts:segnala_post' post.pk %}" class="text-muted" title="Segnala Post">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </a>
+                </div>
+            </div>
+
+            {% if post.media.all %}
+                {% with media=post.media.first %}
+                    {% if media.tipo == 'immagine' %}
+                        <img src="{{ media.file.url }}" class="img-fluid w-100" style="border-top: 1px solid var(--kiki-border); border-bottom: 1px solid var(--kiki-border);">
+                    {% elif media.tipo == 'video' %}
+                        <video class="w-100" controls style="border-top: 1px solid var(--kiki-border); border-bottom: 1px solid var(--kiki-border);">
+                            <source src="{{ media.file.url }}" type="video/mp4">
+                        </video>
+                    {% endif %}
+                {% endwith %}
+            {% endif %}
+
+            <div class="p-3">
+                <div class="d-flex justify-content-between mb-2">
+                    <div class="d-flex gap-3">
+                        <form action="{% url 'posts:toggle_like' post.pk %}" method="POST" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn p-0 border-0 bg-transparent shadow-none" style="color: var(--kiki-red);">
+                                {% if liked %}
+                                    <i class="fa-solid fa-heart fs-4"></i>
+                                {% else %}
+                                    <i class="fa-regular fa-heart fs-4"></i>
+                                {% endif %}
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <form action="{% url 'posts:toggle_salva' post.pk %}" method="POST" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn p-0 border-0 bg-transparent shadow-none" style="color: var(--kiki-gold);">
+                            {% if salvato %}
+                                <i class="fa-solid fa-bookmark fs-4"></i>
+                            {% else %}
+                                <i class="fa-regular fa-bookmark fs-4"></i>
+                            {% endif %}
+                        </button>
+                    </form>
+                </div>
+
+                <div class="fw-bold mb-2 text-muted" style="font-size: 0.9rem;">
+                    {{ post.num_like }} Mi piace
+                </div>
+                
+                <div class="mb-3">
+                    <a href="{% url 'users:profilo' post.autore.username %}" class="fw-bold text-decoration-none me-1" style="color: var(--kiki-text-main);">{{ post.autore.username }}</a>
+                    <span>{{ post.caption }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="post-card p-3 mt-4">
+            <h5 style="color: var(--kiki-gold);"><i class="fa-regular fa-comments"></i> Commenti ({{ post.num_commenti }})</h5>
+            <hr style="border-color: var(--kiki-border);">
+
+            {% for commento in commenti %}
+                <div class="d-flex mb-3">
+                    <i class="fa-solid fa-circle-user fs-4 me-2 mt-1" style="color: var(--kiki-text-muted);"></i>
+                    <div class="flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="#" class="fw-bold text-decoration-none" style="color: var(--kiki-text-main);">{{ commento.autore.username }}</a>
+                            <small class="text-muted">{{ commento.data_creazione|date:"d M, H:i" }}</small>
+                        </div>
+                        <p class="mb-1">{{ commento.testo }}</p>
+                        
+                        {% if request.user == commento.autore or request.user.is_moderator %}
+                            <form action="{% url 'posts:elimina_commento' commento.pk %}" method="POST" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-link p-0 text-danger text-decoration-none" style="font-size: 0.8rem;">Elimina</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            {% empty %}
+                <p class="text-muted text-center my-4">Nessun commento ancora. Scrivi il primo!</p>
+            {% endfor %}
+
+            <hr style="border-color: var(--kiki-border);">
+
+            <form method="POST" action="{% url 'posts:aggiungi_commento' post.pk %}">
+                {% csrf_token %}
+                <div class="d-flex align-items-center gap-2">
+                    <div class="flex-grow-1">
+                        {{ commento_form.testo }}
+                    </div>
+                    <button type="submit" class="btn btn-kiki">Invia</button>
+                </div>
+            </form>
+        </div>
+        
+    </div>
+</div>
+
+<style>
+    /* Adattiamo la textarea dei commenti */
+    textarea {
+        width: 100%;
+        background-color: var(--kiki-bg);
+        color: var(--kiki-text-main);
+        border: 1px solid var(--kiki-border);
+        border-radius: 6px;
+        padding: 8px;
+        resize: none;
+    }
+    textarea:focus {
+        outline: none;
+        border-color: var(--kiki-gold);
+    }
+</style>
+{% endblock %}

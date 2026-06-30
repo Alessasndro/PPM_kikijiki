@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profilo di {{ profilo.username }} - MirrorBreaker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-10">
+
+        <!-- HEADER DEL PROFILO -->
+        <div class="post-card p-4 mb-4">
+            <div class="row align-items-center">
+
+                <!-- Foto Profilo -->
+                <div class="col-4 text-center">
+                    {% if profilo.immagine_profilo %}
+                        <img src="{{ profilo.immagine_profilo.url }}" class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover; border: 3px solid var(--kiki-gold);">
+                    {% else %}
+                        <i class="fa-solid fa-circle-user" style="font-size: 120px; color: var(--kiki-gold);"></i>
+                    {% endif %}
+                </div>
+
+                <!-- Info e Statistiche -->
+                <div class="col-8">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <h3 class="m-0" style="color: var(--kiki-text-main);">{{ profilo.username }}</h3>
+
+                        <!-- Bottoni Azione (Modifica o Segui) cuciti sulla tua logica -->
+                        {% if request.user == profilo %}
+                            <a href="{% url 'users:modifica_profilo' %}" class="btn btn-sm btn-kiki-outline">Modifica Profilo</a>
+                        {% else %}
+                            <form action="{% url 'users:toggle_follow' profilo.username %}" method="POST" class="m-0">
+                                {% csrf_token %}
+                                {% if is_following %}
+                                    <button type="submit" class="btn btn-sm btn-kiki-outline">Smetti di seguire</button>
+                                {% elif pending_request %}
+                                    <button type="submit" class="btn btn-sm btn-secondary" disabled>Richiesta inviata</button>
+                                {% else %}
+                                    <button type="submit" class="btn btn-sm btn-kiki">Segui</button>
+                                {% endif %}
+                            </form>
+                        {% endif %}
+                    </div>
+
+                    <!-- Statistiche collegate alle tue "@property" nel modello -->
+                    <div class="d-flex gap-4 mb-3" style="color: var(--kiki-text-main);">
+                        <div><strong style="color: var(--kiki-gold);">{{ profilo.num_post }}</strong> post</div>
+                        <div><strong style="color: var(--kiki-gold);">{{ profilo.num_followers }}</strong> follower</div>
+                        <div><strong style="color: var(--kiki-gold);">{{ profilo.num_following }}</strong> seguiti</div>
+                    </div>
+
+                    <!-- Bio, Nome e Link Sito -->
+                    <div>
+                        {% if profilo.first_name or profilo.last_name %}
+                            <div class="fw-bold">{{ profilo.first_name }} {{ profilo.last_name }}</div>
+                        {% endif %}
+
+                        {% if profilo.bio %}
+                            <div class="mt-1" style="white-space: pre-line; color: var(--kiki-text-muted);">{{ profilo.bio }}</div>
+                        {% endif %}
+
+                        {% if profilo.link_sito %}
+                            <div class="mt-1">
+                                <a href="{{ profilo.link_sito }}" target="_blank" style="color: var(--kiki-gold); text-decoration: none;">
+                                    <i class="fa-solid fa-link"></i> {{ profilo.link_sito }}
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GRIGLIA DEI POST DELL'UTENTE -->
+        <hr style="border-color: var(--kiki-border); margin: 30px 0;">
+        <h5 class="text-center mb-4" style="color: var(--kiki-gold); letter-spacing: 2px;"><i class="fa-solid fa-border-all"></i> I POST DI {{ profilo.username|upper }}</h5>
+
+        <div class="row g-1">
+            <!-- Usiamo il context 'post_list' corretto della tua vista -->
+            {% for post in post_list %}
+                <div class="col-4">
+                    <a href="{% url 'posts:dettaglio' post.pk %}" class="d-block position-relative" style="aspect-ratio: 1/1; overflow: hidden; background-color: var(--kiki-card-bg); border: 1px solid var(--kiki-border);">
+                        
+                        {% if post.media.all %}
+                            {% with media=post.media.first %}
+                                {% if media.tipo == 'immagine' %}
+                                    <img src="{{ media.file.url }}" class="w-100 h-100" style="object-fit: cover;">
+                                {% elif media.tipo == 'video' %}
+                                    <div class="w-100 h-100 d-flex justify-content-center align-items-center">
+                                        <i class="fa-solid fa-video fs-2" style="color: var(--kiki-text-muted);"></i>
+                                    </div>
+                                {% endif %}
+                            {% endwith %}
+                        {% else %}
+                            <div class="w-100 h-100 d-flex justify-content-center align-items-center p-2 text-center" style="color: var(--kiki-text-muted); font-size: 0.8rem;">
+                                {{ post.caption|truncatechars:40 }}
+                            </div>
+                        {% endif %}
+                        
+                    </a>
+                </div>
+            {% empty %}
+                <div class="col-12 text-center mt-4">
+                    <i class="fa-solid fa-camera-retro fa-3x mb-3" style="color: var(--kiki-border);"></i>
+                    <p class="text-muted">Nessun post ancora pubblicato.</p>
+                </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

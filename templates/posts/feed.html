@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Feed - MirrorBreaker{% endblock %}
+
+{% block content %}
+<div class="feed-container mt-4">
+    {% for post in post_list %}
+        <div class="post-card">
+            
+            <div class="post-header d-flex justify-content-between align-items-center">
+                <a href="#" class="d-flex align-items-center text-decoration-none">
+                    <i class="fa-solid fa-circle-user fs-3 me-2" style="color: var(--kiki-gold);"></i>
+                    <span class="fw-bold">{{ post.autore.username }}</span>
+                </a>
+                <small class="text-muted">{{ post.data_creazione|date:"d M Y" }}</small>
+            </div>
+
+            {% if post.media.all %}
+                {% with media=post.media.first %}
+                    {% if media.tipo == 'immagine' %}
+                        <img src="{{ media.file.url }}" class="img-fluid w-100" alt="Post di {{ post.autore.username }}" style="border-top: 1px solid var(--kiki-border); border-bottom: 1px solid var(--kiki-border);">
+                    {% elif media.tipo == 'video' %}
+                        <video class="w-100" controls style="border-top: 1px solid var(--kiki-border); border-bottom: 1px solid var(--kiki-border);">
+                            <source src="{{ media.file.url }}" type="video/mp4">
+                        </video>
+                    {% endif %}
+                {% endwith %}
+            {% endif %}
+
+            <div class="p-3">
+                
+                <div class="d-flex gap-3 mb-2">
+                    <form action="{% url 'posts:toggle_like' post.pk %}" method="POST" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn p-0 border-0 bg-transparent shadow-none" style="color: var(--kiki-red);">
+                            {% if request.user in post.like.all %}
+                                <i class="fa-solid fa-heart fs-4"></i>
+                            {% else %}
+                                <i class="fa-regular fa-heart fs-4"></i>
+                            {% endif %}
+                        </button>
+                    </form>
+                    
+                    <a href="{% url 'posts:dettaglio' post.pk %}" style="color: var(--kiki-text-main);">
+                        <i class="fa-regular fa-comment fs-4"></i>
+                    </a>
+                </div>
+                
+                <div class="fw-bold mb-2 text-muted" style="font-size: 0.9rem;">
+                    {{ post.num_like }} Mi piace
+                </div>
+                
+                <div>
+                    <a href="#" class="fw-bold text-decoration-none me-1" style="color: var(--kiki-text-main);">{{ post.autore.username }}</a>
+                    <span>{{ post.caption }}</span>
+                </div>
+                
+                {% if post.num_commenti > 0 %}
+                    <div class="mt-2">
+                        <a href="{% url 'posts:dettaglio' post.pk %}" class="text-muted text-decoration-none" style="font-size: 0.9rem;">
+                            Vedi tutti e {{ post.num_commenti }} i commenti...
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+            
+        </div>
+    {% empty %}
+        <div class="text-center mt-5 p-5 post-card">
+            <i class="fa-solid fa-ghost fs-1 mb-3" style="color: var(--kiki-text-muted);"></i>
+            <h4 style="color: var(--kiki-gold);">Il vuoto assoluto...</h4>
+            <p class="text-muted">Il tuo feed è vuoto. Segui qualcuno o pubblica il tuo primo post per riempirlo!</p>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

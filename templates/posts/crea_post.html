@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Nuovo Post - MirrorBreaker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-8">
+        <div class="post-card p-4">
+            
+            <h3 class="mb-4" style="color: var(--kiki-gold);">
+                <i class="fa-regular fa-square-plus"></i> Crea un nuovo post
+            </h3>
+
+            <form method="POST" enctype="multipart/form-data" action="{% url 'posts:crea_post' %}">
+                {% csrf_token %}
+
+                <div class="mb-4 text-start">
+                    <label class="form-label fw-bold" style="color: var(--kiki-text-main);">
+                        {{ media_form.file.label }}
+                    </label>
+                    
+                    <div class="mt-2">
+                        {{ media_form.file }}
+                    </div>
+                    
+                    {% if media_form.file.help_text %}
+                        <div class="form-text mt-1 text-muted">{{ media_form.file.help_text }}</div>
+                    {% endif %}
+                    
+                    {% for error in media_form.file.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="mb-4 text-start">
+                    <label class="form-label fw-bold" style="color: var(--kiki-text-main);">
+                        Didascalia
+                    </label>
+                    <div class="mt-2 w-100">
+                        {{ post_form.caption }}
+                    </div>
+                    
+                    {% for error in post_form.caption.errors %}
+                        <div class="text-danger small mt-1">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <hr class="my-4" style="border-color: var(--kiki-border);">
+
+                <div class="d-flex justify-content-end gap-3">
+                    <a href="{% url 'posts:feed' %}" class="btn btn-kiki-outline">Annulla</a>
+                    <button type="submit" class="btn btn-kiki px-4">Pubblica <i class="fa-solid fa-paper-plane ms-1"></i></button>
+                </div>
+                
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    textarea {
+        width: 100%;
+        background-color: var(--kiki-bg);
+        color: var(--kiki-text-main);
+        border: 1px solid var(--kiki-border);
+        border-radius: 6px;
+        padding: 10px;
+    }
+    textarea:focus {
+        outline: none;
+        border-color: var(--kiki-gold);
+    }
+    input[type="file"] {
+        color: var(--kiki-text-muted);
+    }
+</style>
+{% endblock %}
