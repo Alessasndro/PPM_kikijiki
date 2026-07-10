@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Conversazione con {{ altro.username }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'messaggi:lista_conversazioni' %}" class="text-decoration-none">
+    <i class="fa-solid fa-arrow-left"></i> Torna ai messaggi
+</a></p>
+<h4 class="mb-3">{{ altro.username }}</h4>
+
+<div class="mb-3 p-2" style="max-height: 400px; overflow-y: auto;">
+    {% for m in thread %}
+        <div class="mb-2 d-flex {% if m.mittente == request.user %}justify-content-end{% else %}justify-content-start{% endif %}">
+            <div class="p-2 rounded" style="max-width: 75%; background-color: {% if m.mittente == request.user %}var(--kiki-gold); color: #1a1a1a;{% else %}var(--kiki-card-bg); border: 1px solid var(--kiki-border);{% endif %}">
+                <div>{{ m.testo }}</div>
+                <div class="small {% if m.mittente == request.user %}text-dark-50{% else %}text-muted{% endif %}">{{ m.inviato_il|date:"d/m/Y H:i" }}</div>
+            </div>
+        </div>
+    {% empty %}
+        <p class="text-muted">Nessun messaggio ancora. Scrivi il primo!</p>
+    {% endfor %}
+</div>
+
+<form method="post" class="d-flex gap-2">
+    {% csrf_token %}
+    <div class="flex-grow-1">{{ form.testo }}</div>
+    <button type="submit" class="btn btn-kiki">Invia</button>
+</form>
+{% endblock %}

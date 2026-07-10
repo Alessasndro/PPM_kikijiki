@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Messaggi — MirrorBreaker{% endblock %}
+{% block content %}
+<h2 class="mb-4"><i class="fa-regular fa-envelope"></i> I tuoi messaggi</h2>
+
+{% if conversazioni %}
+<div class="list-group">
+    {% for c in conversazioni %}
+        <a href="{% url 'messaggi:conversazione' c.utente.username %}"
+           class="list-group-item list-group-item-action d-flex justify-content-between align-items-start"
+           style="background-color: var(--kiki-card-bg); border-color: var(--kiki-border); color: inherit;">
+            <div>
+                <strong>{{ c.utente.username }}</strong>
+                <div class="text-muted small">{{ c.ultimo_messaggio.testo|truncatechars:60 }}</div>
+            </div>
+            <div class="text-end">
+                {% if c.non_letti %}
+                    <span class="badge rounded-pill" style="background-color: var(--kiki-gold);">{{ c.non_letti }}</span>
+                {% endif %}
+                <div class="text-muted small">{{ c.ultimo_messaggio.inviato_il|date:"d/m/Y H:i" }}</div>
+            </div>
+        </a>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">Non hai ancora nessuna conversazione. Vai sul profilo di un utente e scrivigli un messaggio!</p>
+{% endif %}
+{% endblock %}
