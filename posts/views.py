@@ -28,13 +28,24 @@ class FeedView(LoginRequiredMixin, ListView):
     paginate_by         = 12
 
     def get_queryset(self):
+        base = Post.objects.filter(archiviato=False, eliminato_da_moderatore=False)
+
+        # Moderatori e superuser vedono i post generali di tutta la piattaforma,
+        # non solo quelli degli utenti che seguono.
+        if self.request.user.is_moderator or self.request.user.is_superuser:
+            return base.prefetch_related('media', 'like', 'commenti', 'autore')
+
         following_ids = self.request.user.following.values_list('id', flat=True)
         return (
-            Post.objects
+            base
             .filter(autore_id__in=list(following_ids) + [self.request.user.id])
-            .filter(archiviato=False, eliminato_da_moderatore=False)
             .prefetch_related('media', 'like', 'commenti', 'autore')
         )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['vista_generale'] = self.request.user.is_moderator or self.request.user.is_superuser
+        return context
 
 
 # ---------------------------------------------------------------------------
@@ -48,15 +59,19 @@ def crea_post_view(request):
 
     if request.method == 'POST':
         if post_form.is_valid() and media_form.is_valid():
-            post = post_form.save(commit=False)
-            post.autore = request.user
-            post.save()
-            MediaPost.objects.create(
-                post=post,
-                file=media_form.cleaned_data['file'],
-            )
-            messages.success(request, "Post pubblicato!")
-            return redirect('posts:dettaglio', pk=post.pk)
+            caption = post_form.cleaned_data.get('caption', '')
+            file    = media_form.cleaned_data.get('file')
+
+            if not caption and not file:
+                post_form.add_error('caption', "Scrivi qualcosa o aggiungi una foto/video.")
+            else:
+                post = post_form.save(commit=False)
+                post.autore = request.user
+                post.save()
+                if file:
+                    MediaPost.objects.create(post=post, file=file)
+                messages.success(request, "Post pubblicato!")
+                return redirect('posts:dettaglio', pk=post.pk)
 
     return render(request, 'posts/crea_post.html', {
         'post_form': post_form, 'media_form': media_form,

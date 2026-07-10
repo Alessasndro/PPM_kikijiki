@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestisci Utente - MirrorBreaker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="post-card p-4">
+            
+            <h3 class="mb-4" style="color: var(--kiki-gold);">
+                <i class="fa-solid fa-gavel"></i> Gestisci {{ utente.username }}
+            </h3>
+
+            {% if utente.is_banned %}
+                <div class="alert alert-danger" style="background-color: rgba(230, 57, 70, 0.2); border: 1px solid var(--kiki-red); color: var(--kiki-text-main);">
+                    <strong>Attenzione:</strong> Questo account è attualmente <strong>BANNATO</strong>. Non può accedere alla piattaforma.
+                </div>
+            {% else %}
+                <div class="alert alert-success" style="background-color: rgba(42, 157, 143, 0.2); border: 1px solid #2a9d8f; color: var(--kiki-text-main);">
+                    Questo account è attualmente <strong>ATTIVO</strong>.
+                </div>
+            {% endif %}
+
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="mb-4 mt-3">
+                    <label class="form-check-label d-flex align-items-center gap-3 p-3" style="border: 1px solid var(--kiki-border); border-radius: 6px; cursor: pointer; background-color: var(--kiki-bg);">
+                        {{ form.is_banned }}
+                        <span class="fw-bold" style="color: var(--kiki-red);">Banna questo account</span>
+                    </label>
+                    <small class="text-muted mt-2 d-block">Spunta la casella e salva per disattivare l'account. Rimuovi la spunta per riattivarlo.</small>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a href="{% url 'users:lista_utenti' %}" class="btn btn-kiki-outline">Annulla</a>
+                    <button type="submit" class="btn btn-kiki">Salva Modifiche</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

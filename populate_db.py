@@ -12,10 +12,12 @@ django.setup()
 
 from django.contrib.auth import get_user_model
 from posts.models import Post, Commento, Segnalazione
+from messaggi.models import Messaggio
 
 User = get_user_model()
 
 print("🗑️  Pulizia database...")
+Messaggio.objects.all().delete()
 Segnalazione.objects.all().delete()
 Commento.objects.all().delete()
 Post.objects.all().delete()
@@ -23,13 +25,13 @@ User.objects.all().delete()
 
 print("👤 Creazione utenti demo...")
 
-# Superuser / admin (Kiki-Jiki)
+# Superuser / admin
 admin = User.objects.create_superuser(
-    username='kikijiki',
+    username='admin_demo',
     email='admin@demo.it',
     password='admin12345',
     ruolo='moderator',
-    bio='Il grande spaccaspecchi. Amministratore supremo della piattaforma 🔥',
+    bio='Account amministratore della piattaforma.',
 )
 
 # Moderatore
@@ -85,13 +87,76 @@ user4 = User.objects.create_user(
     bio='Artista digitale 🎨 | Torino',
 )
 
+user5 = User.objects.create_user(
+    username='paolo_esposito',
+    email='paolo@demo.it',
+    password='user12345',
+    ruolo='standard',
+    first_name='Paolo',
+    last_name='Esposito',
+    bio='Appassionato di calcio ⚽ e cucina 🍝 | Napoli',
+)
+
+user6 = User.objects.create_user(
+    username='chiara_ferro',
+    email='chiara@demo.it',
+    password='user12345',
+    ruolo='standard',
+    first_name='Chiara',
+    last_name='Ferro',
+    bio='Musicista 🎸 | Bologna',
+)
+
+user7 = User.objects.create_user(
+    username='davide_conti',
+    email='davide@demo.it',
+    password='user12345',
+    ruolo='standard',
+    first_name='Davide',
+    last_name='Conti',
+    bio='Runner 🏃 | Roma',
+    account_privato=True,
+)
+
+user8 = User.objects.create_user(
+    username='elena_marino',
+    email='elena@demo.it',
+    password='user12345',
+    ruolo='standard',
+    first_name='Elena',
+    last_name='Marino',
+    bio='Libraia e amante dei gatti 📚🐈 | Firenze',
+)
+
+moderatore2 = User.objects.create_user(
+    username='kiki_jiki',
+    email='kikijiki@demo.it',
+    password='moderatore12345',
+    ruolo='moderator',
+    bio='Il goblin che rompe gli specchi 🔥 Moderatore supremo della community.',
+)
+
 print("🤝 Creazione relazioni follow...")
 
+# mario segue giulia e sara
 user1.following.add(user2, user4)
+# giulia segue mario e luca
 user2.following.add(user1, user3)
+# sara segue mario e giulia
 user4.following.add(user1, user2)
-moderatore.following.add(user1, user2, user3, user4)
+# paolo segue mario, chiara ed elena
+user5.following.add(user1, user6, user8)
+# chiara segue paolo e giulia
+user6.following.add(user5, user2)
+# elena segue sara e chiara
+user8.following.add(user4, user6)
+# moderatore segue tutti
+moderatore.following.add(user1, user2, user3, user4, user5, user6, user7, user8)
+moderatore2.following.add(user1, user2, user3, user4, user5, user6, user7, user8)
+# richiesta di follow pendente a luca (account privato)
 user3.richieste_in_arrivo.add(user4)
+# richiesta di follow pendente a davide (account privato)
+user7.richieste_in_arrivo.add(user5)
 
 print("📝 Creazione post...")
 
@@ -166,14 +231,52 @@ Segnalazione.objects.create(
     motivo='spam',
     descrizione='Test segnalazione già risolta.',
     stato='risolta',
-    gestita_da=admin,  # <-- Aggiornato per usare l'admin
+    gestita_da=moderatore,
+)
+
+p8 = Post.objects.create(
+    autore=user5,
+    caption='Partita pazzesca ieri sera ⚽🔥 #calcio #napoli',
+)
+p9 = Post.objects.create(
+    autore=user6,
+    caption='Nuovo pezzo alla chitarra, presto il video completo 🎸',
+)
+p10 = Post.objects.create(
+    autore=user8,
+    caption='Il mio angolo preferito in libreria, con il gatto di ordinanza 🐈📚',
+)
+
+p8.like.add(user1, user6)
+p9.like.add(user2, user5)
+p10.like.add(user4, user6)
+
+Commento.objects.create(post=p8, autore=user1, testo='Che partita! Non ci credevo 😍')
+Commento.objects.create(post=p9, autore=user5, testo='Fenomenale come sempre!')
+Commento.objects.create(post=p10, autore=user4, testo='Il gatto ruba la scena 😹')
+
+print("💌 Creazione messaggi privati demo...")
+
+Messaggio.objects.create(mittente=user1, destinatario=user2, testo='Ciao Giulia! Bella la foto di Tokyo 😍')
+Messaggio.objects.create(mittente=user2, destinatario=user1, testo='Grazie Mario! Dovresti venire anche tu la prossima volta')
+Messaggio.objects.create(mittente=user1, destinatario=user2, testo='Magari il prossimo anno! 🙏')
+Messaggio.objects.create(mittente=user5, destinatario=user6, testo='Ehi Chiara, quando esce il video della chitarra?')
+Messaggio.objects.create(mittente=user6, destinatario=user5, testo='Questo weekend, se tutto va bene!')
+Messaggio.objects.create(
+    mittente=moderatore, destinatario=user1,
+    testo='Ciao Mario, un tuo post è stato segnalato, verifica le linee guida della community.',
 )
 
 print("\n✅ Database popolato con successo!")
-print("\n📋 Account demo aggiornati:")
-print("   kikijiki         / admin12345      → superuser + moderatore (ADMIN)")
+print("\n📋 Account demo:")
+print("   admin_demo       / admin12345      → superuser + moderatore")
 print("   moderatore_demo  / moderatore12345 → moderatore")
+print("   kiki_jiki        / moderatore12345 → moderatore")
 print("   mario_rossi      / user12345       → utente standard")
 print("   giulia_bianchi   / user12345       → utente standard")
 print("   luca_verdi       / user12345       → utente standard (account privato)")
 print("   sara_neri        / user12345       → utente standard")
+print("   paolo_esposito   / user12345       → utente standard")
+print("   chiara_ferro     / user12345       → utente standard")
+print("   davide_conti     / user12345       → utente standard (account privato)")
+print("   elena_marino     / user12345       → utente standard")

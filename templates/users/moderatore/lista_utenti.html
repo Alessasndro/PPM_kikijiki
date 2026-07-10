@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block title %}Pannello Moderatore - MirrorBreaker{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-10">
+        <div class="post-card p-4">
+            <h3 class="mb-4" style="color: var(--kiki-gold);">
+                <i class="fa-solid fa-shield-halved"></i> Dashboard Moderatore
+            </h3>
+            
+            <p class="text-muted mb-4">Gestione degli account utente della piattaforma.</p>
+
+            <div class="table-responsive">
+                <table class="table table-dark table-hover align-middle" style="background-color: transparent;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--kiki-gold);">
+                            <th scope="col" style="color: var(--kiki-text-muted);">Utente</th>
+                            <th scope="col" style="color: var(--kiki-text-muted);">Ruolo</th>
+                            <th scope="col" style="color: var(--kiki-text-muted);">Stato</th>
+                            <th scope="col" class="text-end" style="color: var(--kiki-text-muted);">Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for utente in utenti %}
+                        <tr style="border-bottom: 1px solid var(--kiki-border);">
+                            <td>
+                                <a href="{% url 'users:profilo' utente.username %}" class="text-decoration-none fw-bold" style="color: var(--kiki-text-main);">
+                                    {{ utente.username }}
+                                </a>
+                            </td>
+                            <td>
+                                {% if utente.is_moderator or utente.is_superuser %}
+                                    <span class="badge" style="background-color: var(--kiki-gold); color: black;">Moderatore</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Standard</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if utente.is_banned %}
+                                    <span class="badge" style="background-color: var(--kiki-red);">Bannato</span>
+                                {% else %}
+                                    <span class="badge bg-success">Attivo</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <a href="{% url 'users:ban_utente' utente.username %}" class="btn btn-sm btn-kiki-outline">
+                                    <i class="fa-solid fa-gavel"></i> Gestisci
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-4">Nessun utente trovato.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

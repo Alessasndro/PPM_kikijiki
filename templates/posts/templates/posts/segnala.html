@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Segnala post{% endblock %}
+{% block content %}
+<h4 class="mb-3"><i class="fa-solid fa-flag"></i> Segnala questo post</h4>
+
+<div class="card mb-3" style="background-color: var(--kiki-card-bg); border-color: var(--kiki-border);">
+    <div class="card-body">
+        <p class="mb-1"><strong>{{ post.autore.username }}</strong></p>
+        <p class="text-muted">{{ post.caption|truncatechars:120 }}</p>
+    </div>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    {% for field in form %}
+        <div class="mb-3">
+            <label class="form-label">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+            {% for error in field.errors %}
+                <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-kiki">Invia segnalazione</button>
+    <a href="{% url 'posts:dettaglio' post.pk %}" class="btn btn-kiki-outline">Annulla</a>
+</form>
+{% endblock %}

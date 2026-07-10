@@ -9,4 +9,5 @@ urlpatterns = [
     path('', lambda request: redirect('posts:feed'), name='home'),
     path('', include('users.urls')),
     path('posts/', include('posts.urls')),
+    path('messaggi/', include('messaggi.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

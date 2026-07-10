@@ -6,7 +6,7 @@ SECRET_KEY = 'django-insecure-j6c=b(=(3zx1jy&r2s4a_4csc7xa!dy0@vu!r@h%8v4wsxn%vg
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -17,6 +17,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'users',
     'posts',
+    'messaggi',
 ]
 
 MIDDLEWARE = [
@@ -52,6 +53,10 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        'OPTIONS': {
+            'timeout': 30,
+        },
+        'CONN_MAX_AGE': 600,
     }
 }
 
@@ -67,11 +72,7 @@ TIME_ZONE = 'Europe/Rome'
 USE_I18N = True
 USE_TZ = True
 
-# --- MODIFICA STATICI QUI ---
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
+STATIC_URL = 'static/'
 
 # --- AGGIUNTO ---
 AUTH_USER_MODEL = 'users.CustomUser'
@@ -84,3 +85,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/posts/'
 LOGOUT_REDIRECT_URL = '/login/'
+
+
+# ---------------------------------------------------------------------------
+# WAL mode per SQLite: evita che il database si blocchi ("database is locked")
+# quando più richieste leggono/scrivono contemporaneamente, senza dover
+# riavviare il server.
+# ---------------------------------------------------------------------------
+from django.db.backends.signals import connection_created  # noqa: E402
+
+
+def _attiva_wal_mode(sender, connection, **kwargs):
+    if connection.vendor == 'sqlite':
+        with connection.cursor() as cursor:
+            cursor.execute('PRAGMA journal_mode=WAL;')
+            cursor.execute('PRAGMA synchronous=NORMAL;')
+            cursor.execute('PRAGMA busy_timeout=30000;')
+
+
+connection_created.connect(_attiva_wal_mode)

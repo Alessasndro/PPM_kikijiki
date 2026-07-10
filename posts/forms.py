@@ -21,10 +21,11 @@ class PostForm(forms.ModelForm):
 
 
 class MediaPostForm(forms.Form):
-    """Form separato per l'upload del file media (immagine/video)."""
+    """Form separato per l'upload del file media (immagine/video) — opzionale."""
     file = forms.FileField(
         label='Immagine o Video',
-        help_text='Formati supportati: JPG, PNG, MP4. Max 50 MB.',
+        help_text='Formati supportati: JPG, PNG, MP4. Max 50 MB. (Facoltativo)',
+        required=False,
     )
 
     def clean_file(self):

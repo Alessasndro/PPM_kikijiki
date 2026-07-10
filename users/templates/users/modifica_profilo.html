@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Modifica profilo{% endblock %}
+{% block content %}
+<h4 class="mb-3"><i class="fa-solid fa-gear"></i> Modifica il tuo profilo</h4>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% for field in form %}
+        <div class="mb-3">
+            <label class="form-label">{{ field.label }}</label>
+            {{ field }}
+            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+            {% for error in field.errors %}
+                <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-kiki">Salva modifiche</button>
+    <a href="{% url 'users:profilo' request.user.username %}" class="btn btn-kiki-outline">Annulla</a>
+</form>
+{% endblock %}
