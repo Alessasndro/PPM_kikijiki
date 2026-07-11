@@ -97,15 +97,12 @@ creare dati manualmente.
 
 ## Deployment
 
-**⚠️ Link al deployment: DA COMPLETARE.**
-Il progetto non risulta ancora distribuito su una piattaforma online. Vedi la sezione
-"Cosa manca prima della consegna" più sotto per i passaggi necessari a completare il deployment
-entro la scadenza.
+AlexandruEnache.pythonanywhere.com
 
 ## Scenario di test consigliato
 
 1. Accedi come `mario_rossi` (utente standard), pubblica un post e segui `giulia_bianchi`.
-2. Visita il profilo di un altro utente, metti like e commenta un suo post.
+2.  metti like e commenta un  post.
 3. Prova a modificare o eliminare un post di un altro utente: l'azione deve essere negata.
 4. Invia un messaggio privato a un altro utente dalla sezione messaggi.
 5. Segnala un post da un account standard.
