@@ -1,12 +1,23 @@
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-j6c=b(=(3zx1jy&r2s4a_4csc7xa!dy0@vu!r@h%8v4wsxn%vg'
+SECRET_KEY = os.environ.get(
+    'SECRET_KEY',
+    'django-insecure-j6c=b(=(3zx1jy&r2s4a_4csc7xa!dy0@vu!r@h%8v4wsxn%vg',
+)
 
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver']
+ALLOWED_HOSTS = os.environ.get(
+    'ALLOWED_HOSTS',
+    'localhost,127.0.0.1,testserver',
+).split(',')
+
+CSRF_TRUSTED_ORIGINS = [
+    origin for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',') if origin
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -22,6 +33,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # serve i file statici in produzione
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -73,6 +85,20 @@ USE_I18N = True
 USE_TZ = True
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']  # cartella dove si trova il tuo static/css/style.css
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # destinazione di `collectstatic` per il deploy
+
+# Lo storage "manifest" di whitenoise richiede che tu abbia eseguito
+# `collectstatic` (genera un file di mappatura dei nomi dei file). In locale,
+# con DEBUG=True, di solito non lo lanci mai: per questo lo attiviamo solo
+# quando DEBUG=False (cioè in produzione). In locale i file statici vengono
+# serviti normalmente da Django, con i colori del sito che funzionano subito.
+if not DEBUG:
+    STORAGES = {
+        'staticfiles': {
+            'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        },
+    }
 
 # --- AGGIUNTO ---
 AUTH_USER_MODEL = 'users.CustomUser'
