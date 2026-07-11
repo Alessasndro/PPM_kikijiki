@@ -95,11 +95,13 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'  # destinazione di `collectstatic` per il
 # serviti normalmente da Django, con i colori del sito che funzionano subito.
 if not DEBUG:
     STORAGES = {
+        'default': {
+            'BACKEND': 'django.core.files.storage.FileSystemStorage',
+        },
         'staticfiles': {
             'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
         },
     }
-
 # --- AGGIUNTO ---
 AUTH_USER_MODEL = 'users.CustomUser'
 
