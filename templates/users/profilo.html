@@ -12,7 +12,7 @@
             <div class="row align-items-center">
 
                 <!-- Foto Profilo -->
-                <div class="col-4 text-center">
+                <div class="col-12 col-sm-4 text-center mb-3 mb-sm-0">
                     {% if profilo.immagine_profilo %}
                         <img src="{{ profilo.immagine_profilo.url }}" class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover; border: 3px solid var(--kiki-gold);">
                     {% else %}
@@ -20,10 +20,12 @@
                     {% endif %}
                 </div>
 
-                <div class="col-8">
-                    <div class="d-flex align-items-center gap-3 mb-3">
+                <!-- Info e Statistiche -->
+                <div class="col-12 col-sm-8 text-center text-sm-start">
+                    <div class="d-flex flex-wrap justify-content-center justify-content-sm-start align-items-center gap-2 gap-sm-3 mb-3">
                         <h3 class="m-0" style="color: var(--kiki-text-main);">{{ profilo.username }}</h3>
 
+                        <!-- Bottoni Azione (Modifica o Segui) cuciti sulla tua logica -->
                         {% if request.user == profilo %}
                             <a href="{% url 'users:modifica_profilo' %}" class="btn btn-sm btn-kiki-outline">Modifica Profilo</a>
                         {% else %}
@@ -44,12 +46,14 @@
                         {% endif %}
                     </div>
 
-                    <div class="d-flex gap-4 mb-3" style="color: var(--kiki-text-main);">
+                    <!-- Statistiche collegate alle tue "@property" nel modello -->
+                    <div class="d-flex justify-content-center justify-content-sm-start gap-4 mb-3" style="color: var(--kiki-text-main);">
                         <div><strong style="color: var(--kiki-gold);">{{ profilo.num_post }}</strong> post</div>
                         <div><strong style="color: var(--kiki-gold);">{{ profilo.num_followers }}</strong> follower</div>
                         <div><strong style="color: var(--kiki-gold);">{{ profilo.num_following }}</strong> seguiti</div>
                     </div>
 
+                    <!-- Bio, Nome e Link Sito -->
                     <div>
                         {% if profilo.first_name or profilo.last_name %}
                             <div class="fw-bold">{{ profilo.first_name }} {{ profilo.last_name }}</div>
@@ -76,6 +80,7 @@
         <h5 class="text-center mb-4" style="color: var(--kiki-gold); letter-spacing: 2px;"><i class="fa-solid fa-border-all"></i> I POST DI {{ profilo.username|upper }}</h5>
 
         <div class="row g-1">
+            <!-- Usiamo il context 'post_list' corretto della tua vista -->
             {% for post in post_list %}
                 <div class="col-4">
                     <a href="{% url 'posts:dettaglio' post.pk %}" class="d-block position-relative" style="aspect-ratio: 1/1; overflow: hidden; background-color: var(--kiki-card-bg); border: 1px solid var(--kiki-border);">
