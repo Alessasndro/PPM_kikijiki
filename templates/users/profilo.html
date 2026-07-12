@@ -39,6 +39,10 @@
                                     <button type="submit" class="btn btn-sm btn-kiki">Segui</button>
                                 {% endif %}
                             </form>
+
+                            <a href="{% url 'messaggi:conversazione' profilo.username %}" class="btn btn-sm btn-kiki-outline">
+                                <i class="fa-regular fa-paper-plane"></i> Messaggio
+                            </a>
                         {% endif %}
                     </div>
 
