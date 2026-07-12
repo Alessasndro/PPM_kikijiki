@@ -42,6 +42,25 @@ def lista_conversazioni_view(request):
 
 
 @login_required
+def cerca_utenti_view(request):
+    """Cerca utenti per username/nome a cui poter scrivere un messaggio."""
+    query = request.GET.get('q', '').strip()
+
+    risultati = []
+    if query:
+        risultati = CustomUser.objects.filter(
+            Q(username__icontains=query) |
+            Q(first_name__icontains=query) |
+            Q(last_name__icontains=query)
+        ).exclude(pk=request.user.pk).order_by('username')[:20]
+
+    return render(request, 'messaggi/cerca_utenti.html', {
+        'query': query,
+        'risultati': risultati,
+    })
+
+
+@login_required
 def conversazione_view(request, username):
     """Mostra (e permette di continuare) la conversazione con un altro utente."""
     altro = get_object_or_404(CustomUser, username=username)

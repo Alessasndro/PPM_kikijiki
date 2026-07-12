@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Cerca utenti — MirrorBreaker{% endblock %}
+{% block content %}
+<p><a href="{% url 'messaggi:lista_conversazioni' %}" class="text-decoration-none">
+    <i class="fa-solid fa-arrow-left"></i> Torna ai messaggi
+</a></p>
+
+<h2 class="mb-4"><i class="fa-solid fa-magnifying-glass"></i> Cerca utenti</h2>
+
+<form method="get" class="d-flex gap-2 mb-4">
+    <input type="text" name="q" value="{{ query }}" class="form-control"
+           placeholder="Cerca per username o nome…" autofocus>
+    <button type="submit" class="btn btn-kiki">Cerca</button>
+</form>
+
+{% if query %}
+    {% if risultati %}
+        <div class="list-group">
+            {% for u in risultati %}
+                <div class="list-group-item d-flex justify-content-between align-items-center"
+                     style="background-color: var(--kiki-card-bg); border-color: var(--kiki-border);">
+                    <a href="{% url 'users:profilo' u.username %}" class="d-flex align-items-center gap-2 text-decoration-none" style="color: inherit;">
+                        {% if u.immagine_profilo %}
+                            <img src="{{ u.immagine_profilo.url }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                        {% else %}
+                            <i class="fa-solid fa-circle-user" style="font-size: 40px; color: var(--kiki-gold);"></i>
+                        {% endif %}
+                        <div>
+                            <strong>{{ u.username }}</strong>
+                            {% if u.first_name or u.last_name %}
+                                <div class="text-muted small">{{ u.first_name }} {{ u.last_name }}</div>
+                            {% endif %}
+                        </div>
+                    </a>
+                    <a href="{% url 'messaggi:conversazione' u.username %}" class="btn btn-sm btn-kiki-outline">
+                        <i class="fa-regular fa-paper-plane"></i> Scrivi
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-muted">Nessun utente trovato per "{{ query }}".</p>
+    {% endif %}
+{% else %}
+    <p class="text-muted">Digita un nome per iniziare la ricerca.</p>
+{% endif %}
+{% endblock %}
